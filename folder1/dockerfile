@@ -1,0 +1,5 @@
+FROM tomcat
+MAINTAINER saikiran
+LABEL its my first image
+WORKDIR saikiran/server/
+copy folder1 .

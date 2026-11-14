@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEBULA GAMING · play the future</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+        }
+
+        body {
+            background: #0a0c1a;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------- ANIMATED STARFIELD (canvas) ---------- */
+        #star-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ---------- MAIN CONTENT (above canvas) ---------- */
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 0 24px;
+            backdrop-filter: blur(1px);
+        }
+
+        /* ----- header / nav ----- */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(100, 210, 255, 0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.9rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px #00e0ff, 0 0 30px #0066ff;
+        }
+
+        .logo i {
+            font-size: 2.2rem;
+            color: #00e0ff;
+            filter: drop-shadow(0 0 10px #00aaff);
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #a0e9ff, #4d9eff, #c56bff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .nav-links a {
+            color: #ccd9f0;
+            text-decoration: none;
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a i {
+            font-size: 1rem;
+            color: #5bc0ff;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+            border-bottom-color: #00e0ff;
+            text-shadow: 0 0 12px #00b7ff;
+        }
+
+        /* ----- hero section ----- */
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin: 50px 0 30px;
+            gap: 30px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .hero-text h1 .glow {
+            background: linear-gradient(120deg, #00d9ff, #a56eff, #ff5ec4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(0, 200, 255, 0.6);
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #b8c7e0;
+            max-width: 550px;
+            margin-bottom: 30px;
+            border-left: 3px solid #00b8ff;
+            padding-left: 18px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 36px;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            box-shadow: 0 0 25px #0077ff, 0 0 10px #00a2ff inset;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 40px #00b7ff, 0 0 15px #00ddff inset;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid #3a5f8a;
+            box-shadow: 0 0 15px rgba(0, 180, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 180, 255, 0.15);
+            border-color: #3fb5ff;
+            transform: scale(1.02);
+        }
+
+        /* ----- game cards (featured games) ----- */
+        .section-title {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin: 50px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .section-title i {
+            color: #00ddff;
+            font-size: 2rem;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 26px;
+            margin: 10px 0 40px;
+        }
+
+        .game-card {
+            background: rgba(15, 25, 45, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            border-radius: 28px;
+            padding: 24px 18px 18px;
+            transition: all 0.3s;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: #00ccff;
+            box-shadow: 0 0 30px #0088ff66, 0 20px 40px -8px black;
+            background: rgba(20, 35, 60, 0.8);
+        }
+
+        .game-icon {
+            font-size: 3.6rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 15px #00a2ff);
+            color: #bbecff;
+        }
+
+        .game-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .game-card .genre {
+            font-size: 0.9rem;
+            color: #8db9e0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .play-now {
+            margin-top: auto;
+            font-weight: 600;
+            color: #00e0ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            opacity: 0.9;
+            transition: 0.2s;
+        }
+
+        .play-now i {
+            transition: transform 0.2s;
+        }
+
+        .game-card:hover .play-now i {
+            transform: translateX(6px);
+        }
+
+        /* ----- leaderboard / stats preview ----- */
+        .stats-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            margin: 20px 0 60px;
+            justify-content: space-between;
+        }
+
+        .stat-item {
+            flex: 1 1 180px;
+            background: rgba(0, 20, 40, 0.5);
+            backdrop-filter: blur(8px);
+            padding: 22px 20px;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 180, 255, 0.25);
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 160, 255, 0.1);
+        }
+
+        .stat-item i {
+            font-size: 2rem;
+            color: #00e0ff;
+            margin-bottom: 8px;
+        }
+
+        .stat-item .value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #e0f0ff, #88ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .stat-item .label {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            color: #92b9e0;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* ----- footer ----- */
+        .footer {
+            margin-top: auto;
+            padding: 26px 0 22px;
+            border-top: 1px solid rgba(0, 200, 255, 0.2);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            color: #7c9bc2;
+            font-size: 0.95rem;
+        }
+
+        .footer .social i {
+            font-size: 1.4rem;
+            margin-left: 16px;
+            color: #7fa5d0;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .footer .social i:hover {
+            color: #00e0ff;
+            transform: scale(1.15);
+            filter: drop-shadow(0 0 12px #00aaff);
+        }
+
+        /* ---------- responsive ---------- */
+        @media (max-width: 750px) {
+            .navbar {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                margin-top: 30px;
+            }
+            .hero-text p {
+                border-left: none;
+                padding-left: 0;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .btn-group {
+                justify-content: center;
+            }
+            .hero-text h1 {
+                font-size: 2.4rem;
+            }
+            .section-title {
+                font-size: 1.6rem;
+            }
+            .footer {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .footer .social i {
+                margin: 0 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            .game-card {
+                padding: 16px 10px;
+            }
+            .game-icon {
+                font-size: 2.6rem;
+            }
+            .game-card h3 {
+                font-size: 1.2rem;
+            }
+            .stat-item .value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- canvas for animated stars -->
+    <canvas id="star-canvas"></canvas>
+
+    <div class="content">
+        <!-- navigation bar -->
+        <header class="navbar">
+            <div class="logo">
+                <i class="fas fa-gamepad"></i>
+                <span>NEBULA</span>
+            </div>
+            <div class="nav-links">
+                <a href="#"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-th-large"></i> Games</a>
+                <a href="#"><i class="fas fa-trophy"></i> Leaderboard</a>
+                <a href="#"><i class="fas fa-user-astronaut"></i> Profile</a>
+            </div>
+        </header>
+
+        <!-- main hero / call to action -->
+        <section class="hero">
+            <div class="hero-text">
+                <h1>PLAY THE <br><span class="glow">FUTURE</span> OF GAMING</h1>
+                <p>Dive into hyper‑realistic worlds, compete in global tournaments, and unlock legendary gear. Your next adventure starts now.</p>
+                <div class="btn-group">
+                    <a href="#" class="btn btn-primary"><i class="fas fa-rocket"></i> PLAY NOW</a>
+                    <a href="#" class="btn btn-secondary"><i class="fas fa-compass"></i> EXPLORE GAMES</a>
+                </div>
+            </div>
+            <div style="font-size: 8rem; opacity: 0.2; filter: drop-shadow(0 0 60px #00aaff);">
+                <i class="fas fa-dice-d20"></i>
+            </div>
+        </section>
+
+        <!-- featured game grid -->
+        <div class="section-title">
+            <i class="fas fa-fire"></i> TRENDING GAMES
+        </div>
+        <div class="game-grid">
+            <div class="game-card" onclick="alert('🚀 Launching Cyber Odyssey...')">
+                <div class="game-icon"><i class="fas fa-robot"></i></div>
+                <h3>CYBER ODYSSEY</h3>
+                <div class="genre">RPG · OPEN WORLD</div>
+                <div class="play-now">PLAY NOW <i class="fas fa-arrow-right"></i></div>
+            </div>
+            <div class="game-card" onclick="alert('⚔️ Entering Shadow Realm...')">
+                <div class="game-icon"><i class="fas fa-dragon"></i></div>
+                <h3>SHADOW REALM</h3>
+                <div class="genre">ACTION · ADVENTURE</div>
+                <div class="play-now">PLAY NOW <i class="fas fa-arrow-right"></i></div>
+            </div>
+            <div class="game-card" onclick="alert('🏁 Velocity Racing is loading...')">
+                <div class="game-icon"><i class="fas fa-car-side"></i></div>
+                <h3>VELOCITY X</h3>
+                <div class="genre">RACING · ARCADE</div>
+                <div class="play-now">PLAY NOW <i class="fas fa-arrow-right"></i></div>
+            </div>
+            <div class="game-card" onclick="alert('👾 Preparing Star Conflict...')">
+                <div class="game-icon"><i class="fas fa-space-shooter"></i></div>
+                <h3>STAR CONFLICT</h3>
+                <div class="genre">SPACE · SHOOTER</div>
+                <div class="play-now">PLAY NOW <i class="fas fa-arrow-right"></i></div>
+            </div>
+        </div>
+
+        <!-- live stats / leaderboard preview -->
+        <div class="section-title">
+            <i class="fas fa-chart-line"></i> LIVE STATS
+        </div>
+        <div class="stats-panel">
+            <div class="stat-item">
+                <i class="fas fa-users"></i>
+                <div class="value">12.4K</div>
+                <div class="label">PLAYERS ONLINE</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-trophy"></i>
+                <div class="value">347</div>
+                <div class="label">TOURNAMENTS</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-skull"></i>
+                <div class="value">1.2M</div>
+                <div class="label">BOSSES DEFEATED</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <div class="value">24/7</div>
+                <div class="label">LIVE SUPPORT</div>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <footer class="footer">
+            <div>© 2025 NEBULA GAMING – play beyond limits</div>
+            <div class="social">
+                <i class="fab fa-discord"></i>
+                <i class="fab fa-twitch"></i>
+                <i class="fab fa-xbox"></i>
+                <i class="fab fa-steam"></i>
+                <i class="fab fa-playstation"></i>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JS for animated starfield -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('star-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+
+            // star properties
+            const STAR_COUNT = 280;
+            const MAX_DEPTH = 1000; // for parallax speed
+
+            function initStars() {
+                stars = [];
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        z: Math.random() * MAX_DEPTH + 1, // depth 1..MAX_DEPTH
+                        radius: Math.random() * 1.8 + 0.6,
+                        brightness: Math.random() * 0.6 + 0.4,
+                    });
+                }
+            }
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                initStars(); // reinitialize stars on resize to fill area
+            }
+
+            // update star positions (move toward viewer)
+            function updateStars() {
+                for (let star of stars) {
+                    // move star toward us (decrease z)
+                    star.z -= 0.6;  // speed factor
+                    // reset star when it goes too close (behind viewer)
+                    if (star.z < 1) {
+                        star.z = MAX_DEPTH;
+                        star.x = Math.random() * width;
+                        star.y = Math.random() * height;
+                        star.radius = Math.random() * 1.8 + 0.6;
+                        star.brightness = Math.random() * 0.6 + 0.4;
+                    }
+                }
+            }
+
+            function drawStars() {
+                // clear with dark blue/black, slight gradient for depth
+                ctx.clearRect(0, 0, width, height);
+                
+                // background gradient (deep space)
+                const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, Math.max(width, height));
+                gradient.addColorStop(0, '#050a14');
+                gradient.addColorStop(1, '#010101');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                // draw stars
+                for (let star of stars) {
+                    // projection: map z to size and brightness (nearer = bigger/brighter)
+                    const scale = (MAX_DEPTH - star.z) / MAX_DEPTH; // 0 (far) .. 1 (near)
+                    const alpha = Math.min(1, star.brightness * (0.4 + scale * 0.8));
+                    const radius = star.radius * (0.5 + scale * 0.9);
+
+                    // subtle glow for near stars
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, radius, 0, Math.PI * 2);
+                    
+                    // color variation: white-blue for distant, near white with blue tint
+                    const blueComponent = 180 + Math.floor(75 * scale);
+                    const greenComponent = 200 + Math.floor(55 * scale);
+                    ctx.fillStyle = `rgba(${greenComponent}, ${blueComponent}, 255, ${alpha})`;
+                    ctx.fill();
+
+                    // add extra glow for very close stars
+                    if (scale > 0.7) {
+                        ctx.shadowColor = '#aae0ff';
+                        ctx.shadowBlur = 12;
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, radius * 1.5, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(180, 220, 255, ${alpha * 0.3})`;
+                        ctx.fill();
+                        ctx.shadowBlur = 0; // reset
+                    }
+                }
+            }
+
+            // animation loop
+            function animate() {
+                updateStars();
+                drawStars();
+                requestAnimationFrame(animate);
+            }
+
+            // setup
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            animate();
+        })();
+    </script>
+</body>
+</html>
